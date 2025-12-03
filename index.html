@@ -1,29 +1,287 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Dashboard Certifications</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Opérateurs – Certifications</title>
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<div class="container">
 
-<div class="layout-bar">
-  <button id="layoutListBtn">Liste</button>
-  <button id="layoutCardsBtn">Cartes</button>
-  <button id="layoutBubblesBtn">Bulles</button>
-  <button id="layoutPieBtn">Camembert</button>
+  <!-- HEADER -->
+  <div class="header">
+    <img
+      src="https://raw.githubusercontent.com/lioneltissotbez-socotec/socotec-assets/8b85d1f9144eefe32a8ddca9516b8d8583d7bbbd/logo.svg"
+      alt="Logo SOCOTEC"
+      class="header-logo"
+    />
+    <h1>Dashboard des opérateurs – Certifications</h1>
+  </div>
+
+  <!-- BOUTONS FICHIERS -->
+  <div class="file-button-wrapper">
+    <button id="openFileBtn" class="primary-btn">Ouvrir le fichier opérateurs</button>
+    <input type="file" id="excelFile" accept=".xlsx" />
+
+    <button id="openLocationBtn" class="secondary-btn">
+      Ouvrir le fichier géographique (optionnel)
+    </button>
+    <input type="file" id="excelLocation" accept=".xlsx" />
+  </div>
+
+  <!-- MODE D’AFFICHAGE GLOBAL -->
+  <div class="view-toggle">
+    <span>Mode d’affichage :</span>
+    <label>
+      <input type="radio" name="viewMode" value="advanced" checked />
+      Visu avancée
+    </label>
+    <label>
+      <input type="radio" name="viewMode" value="memoire" />
+      Visu mémoires
+    </label>
+  </div>
+
+  <!-- FILTRES -->
+  <div class="filters-card filters">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="filterExpiry">Expiration</label>
+        <select id="filterExpiry">
+          <option value="0">Tous</option>
+          <option value="1">1 mois</option>
+          <option value="3">3 mois</option>
+          <option value="6">6 mois</option>
+          <option value="12">12 mois</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterCert">Certificateur</label>
+        <select id="filterCert">
+          <option value="ALL">Tous</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterPole">Pôle budgétaire</label>
+        <select id="filterPole">
+          <option value="ALL">Tous</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterSection">Section budgétaire</label>
+        <select id="filterSection">
+          <option value="ALL">Toutes</option>
+        </select>
+      </div>
+
+      <!-- Recherche opérateur + options -->
+      <div class="filter-group filter-group-operator">
+        <div class="operator-row">
+          <div class="operator-main">
+            <label for="searchOperator">Opérateur</label>
+            <input type="text" id="searchOperator" placeholder="Nom ou prénom…" />
+            <select id="searchOperatorSelect">
+              <option value="ALL">Tous</option>
+            </select>
+          </div>
+          <div class="operator-options">
+            <label class="filter-toggle">
+              <input type="checkbox" id="toggleChart" />
+              Afficher le graphique
+            </label>
+            <label class="filter-toggle">
+              <input type="checkbox" id="toggleGeoCols" />
+              Colonnes géographiques
+            </label>
+            <label class="filter-toggle">
+              <input type="checkbox" id="toggleCert" />
+              Afficher les certificateurs
+            </label>
+          </div>
+        </div>
+
+        <label class="domain-toggle-label">Domaines affichés</label>
+        <div class="domain-toggle">
+          <label><input type="checkbox" value="amiante" checked /> Amiante</label>
+          <label><input type="checkbox" value="crep" checked /> CREP</label>
+          <label><input type="checkbox" value="term" checked /> Termites</label>
+          <label><input type="checkbox" value="dpem" checked /> DPE Mention</label>
+          <label><input type="checkbox" value="gaz" checked /> Gaz</label>
+          <label><input type="checkbox" value="elec" checked /> Élec</label>
+          <label><input type="checkbox" value="dpei" checked /> DPE Indiv</label>
+          <label><input type="checkbox" value="audit" checked /> Audit</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRE DE CHARGEMENT -->
+  <div id="loadingBarWrapper">
+    <div id="loadingBar"></div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-container">
+    <div class="kpi-card">
+      <div class="kpi-title">Opérateurs</div>
+      <div class="kpi-line">Globaux <span class="kpi-value" id="kpiTotal">–</span></div>
+      <div class="kpi-line">Filtrés <span class="kpi-value" id="kpiFilteredTotal">–</span></div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-title">Expirés</div>
+      <div class="kpi-line">Globaux <span class="kpi-value" id="kpiExpired">–</span></div>
+      <div class="kpi-line">Filtrés <span class="kpi-value" id="kpiFilteredExpired">–</span></div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-title">Socle complet</div>
+      <div class="kpi-line">Globaux <span class="kpi-value" id="kpiFull">–</span></div>
+      <div class="kpi-line">Filtrés <span class="kpi-value" id="kpiFilteredFull">–</span></div>
+    </div>
+  </div>
+
+  <!-- GRAPHIQUE BARRES -->
+  <div id="chartContainer">
+    <div class="chart-header">
+      <div style="font-size: 13px; font-weight: bold;">Vue graphique</div>
+      <select id="graphMode">
+        <option value="domain">Domaines</option>
+        <option value="cert">Certificateurs</option>
+        <option value="pole">Pôles</option>
+        <option value="section">Sections</option>
+      </select>
+    </div>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <!-- EXPORTS + LÉGENDE -->
+  <div class="export-bar">
+    <button id="exportVisualBtn" class="secondary-btn">Exporter le tableau</button>
+    <button id="exportEmailsBtn" class="secondary-btn">Exporter les emails</button>
+
+    <div class="legend">
+      <span class="legend-item">
+        <span class="h-badge h-green legend-badge">V</span> Valide
+      </span>
+      <span class="legend-item">
+        <span class="h-badge h-purple legend-badge">12</span> → 12 mois
+      </span>
+      <span class="legend-item">
+        <span class="h-badge h-orange legend-badge">6</span> → 6 mois
+      </span>
+      <span class="legend-item">
+        <span class="h-badge h-red legend-badge">X</span> Expirée
+      </span>
+      <span class="legend-item">
+        <span class="h-badge h-grey legend-badge">–</span> Aucun
+      </span>
+    </div>
+  </div>
 </div>
 
-<input type="file" id="excelFile" style="display:none">
-<input type="file" id="excelLocation" style="display:none">
+<!-- ZONE TABLE + MODES MÉMOIRES -->
+<div class="table-container">
+  <div class="layout-toggle">
+    <span>Affichage :</span>
+    <button type="button" id="layoutListBtn" class="active">Liste</button>
+    <button type="button" id="layoutCardsBtn">Cartes</button>
+    <button type="button" id="layoutBubblesBtn">Bulles</button>
+    <button type="button" id="layoutPieBtn">Camembert</button>
+  </div>
 
-<div id="tableContainer"><table id="dataTable"><tbody></tbody></table></div>
-<div id="cardsContainer"></div>
-<div id="bubbleContainer"><canvas id="bubbleChart"></canvas></div>
-<div id="pieContainer"><canvas id="pieChart"></canvas></div>
+  <!-- Cartes mémoires -->
+  <div id="memoirePanels" class="memoire-panels"></div>
 
+  <!-- Bubble chart -->
+  <div id="bubbleContainer" class="bubble-container">
+    <canvas id="bubbleChart"></canvas>
+  </div>
+
+  <!-- Pie (camembert) chart -->
+  <div id="pieContainer" class="pie-container">
+    <canvas id="pieChart"></canvas>
+  </div>
+
+  <!-- Tableau principal -->
+  <div class="table-wrapper">
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>Opérateur</th>
+
+          <th data-domain="amiante">
+            Amiante<br />
+            <span class="head-badges" id="H_amiante"></span>
+          </th>
+
+          <th data-domain="crep">
+            CREP<br />
+            <span class="head-badges" id="H_crep"></span>
+          </th>
+
+          <th data-domain="term">
+            Termites<br />
+            <span class="head-badges" id="H_term"></span>
+          </th>
+
+          <th data-domain="dpem">
+            DPE Mention<br />
+            <span class="head-badges" id="H_dpem"></span>
+          </th>
+
+          <th data-domain="gaz">
+            Gaz<br />
+            <span class="head-badges" id="H_gaz"></span>
+          </th>
+
+          <th data-domain="elec">
+            Élec<br />
+            <span class="head-badges" id="H_elec"></span>
+          </th>
+
+          <th data-domain="dpei">
+            DPE Indiv<br />
+            <span class="head-badges" id="H_dpei"></span>
+          </th>
+
+          <th data-domain="audit">
+            Audit<br />
+            <span class="head-badges" id="H_audit"></span>
+          </th>
+
+          <th class="geo-col">Pôle</th>
+          <th class="geo-col">Section</th>
+          <th class="geo-col">Manager</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL EXPORT VISUEL -->
+<div id="exportModal">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <h2>Export des opérateurs filtrés</h2>
+      <div>
+        <button id="copyExportBtn">Copier</button>
+        <button id="closeExportBtn">Fermer</button>
+      </div>
+    </div>
+    <div id="exportTableContainer"></div>
+  </div>
+</div>
+
+<!-- LIBRAIRIES + APP JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
