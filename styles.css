@@ -648,36 +648,82 @@ table {
     max-height:320px;
   }
 
+  .pie-container {
+    display:none;
+    margin: 8px 20px 0 0;
+    padding: 8px;
+    background:#ffffff;
+    border-radius: 12px;
+    border:1px solid #dde7f5;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  }
+  #pieChart {
+    width:100%;
+    max-height:320px;
+  }
+
+  .chart-empty {
+    text-align: center;
+    color: #6b7b8c;
+    font-size: 12px;
+    padding: 16px 0;
+  }
+
+  .chart-context {
+    font-size: 12px;
+    color: #5a6b7a;
+    margin: 0 0 4px;
+    font-weight: 600;
+  }
+
   /* Visibilité selon le mode d'affichage en visu mémoires */
-  body.memoire-mode.layout-list .table-wrapper {
+  body.layout-list .table-wrapper {
     display:block;
   }
-  body.memoire-mode.layout-list #memoirePanels {
+  body.layout-list #memoirePanels {
     display:none;
   }
-  body.memoire-mode.layout-list #bubbleContainer {
+  body.layout-list #bubbleContainer {
+    display:none;
+  }
+  body.layout-list #pieContainer {
     display:none;
   }
 
-  body.memoire-mode.layout-cards .table-wrapper {
+  body.layout-cards .table-wrapper {
     display:none;
   }
-  body.memoire-mode.layout-cards #memoirePanels {
+  body.layout-cards #memoirePanels {
     display:grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
-  body.memoire-mode.layout-cards #bubbleContainer {
+  body.layout-cards #bubbleContainer {
+    display:none;
+  }
+  body.layout-cards #pieContainer {
     display:none;
   }
 
-  body.memoire-mode.layout-bubbles .table-wrapper {
+  body.layout-pie .table-wrapper,
+  body.layout-bubbles .table-wrapper {
     display:none;
   }
-  body.memoire-mode.layout-bubbles #memoirePanels {
+  body.layout-pie #memoirePanels,
+  body.layout-bubbles #memoirePanels {
     display:none;
   }
-  body.memoire-mode.layout-bubbles #bubbleContainer {
+  body.layout-pie #bubbleContainer {
+    display:none;
+  }
+  body.layout-pie #pieContainer {
     display:block;
+  }
+
+  body.layout-bubbles #bubbleContainer {
+    display:block;
+  }
+  body.layout-bubbles #pieContainer {
+    display:none;
   }
 
 
