@@ -662,6 +662,13 @@ table {
     max-height:320px;
   }
 
+  .chart-context {
+    font-size: 12px;
+    color: #5a6b7a;
+    margin: 0 0 4px;
+    font-weight: 600;
+  }
+
   /* Visibilité selon le mode d'affichage en visu mémoires */
   body.layout-list .table-wrapper {
     display:block;
@@ -703,6 +710,13 @@ table {
   }
   body.layout-pie #pieContainer {
     display:block;
+  }
+
+  body.layout-bubbles #bubbleContainer {
+    display:block;
+  }
+  body.layout-bubbles #pieContainer {
+    display:none;
   }
 
   body.layout-bubbles #bubbleContainer {
