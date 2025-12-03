@@ -327,12 +327,37 @@ function updatePieChart(ops) {
     const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
     const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
     contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
-  if (!container || !canvas) return;
+  }
 
-  if (contextInfo) {
-    const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
-    const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
-    contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
+  const ctx = canvas.getContext("2d");
+
+  const visibleMap = {};
+  domainCheckboxes.forEach(cb => {
+    visibleMap[cb.value] = cb.checked;
+  });
+
+  const labels = [];
+  const data = [];
+
+  DOMAINS.forEach(domain => {
+    if (visibleMap[domain.key] === false) return;
+
+    let count = 0;
+    ops.forEach(op => {
+      const d = op.domains[domain.key];
+      if (!d) return;
+      if (d.status === "valid") count++;
+    });
+
+    labels.push(domain.label);
+    data.push(count);
+  });
+
+  const isEmpty = labels.length === 0;
+  setChartEmptyState(container, canvas, "pieEmptyState", isEmpty, "Aucune donnée pour le camembert");
+  if (isEmpty) {
+    if (pieChartInstance) pieChartInstance.destroy();
+    return;
   }
 
   const palette = [
