@@ -662,6 +662,13 @@ table {
     max-height:320px;
   }
 
+  .chart-empty {
+    text-align: center;
+    color: #6b7b8c;
+    font-size: 12px;
+    padding: 16px 0;
+  }
+
   .chart-context {
     font-size: 12px;
     color: #5a6b7a;
@@ -709,7 +716,24 @@ table {
     display:none;
   }
   body.layout-pie #pieContainer {
+    display:none;
+  }
+  body.layout-pie #memoirePanels,
+  body.layout-bubbles #memoirePanels {
+    display:none;
+  }
+  body.layout-pie #bubbleContainer {
+    display:none;
+  }
+  body.layout-pie #pieContainer {
     display:block;
+  }
+
+  body.layout-bubbles #bubbleContainer {
+    display:block;
+  }
+  body.layout-bubbles #pieContainer {
+    display:none;
   }
 
   body.layout-bubbles #bubbleContainer {

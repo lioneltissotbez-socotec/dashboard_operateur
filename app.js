@@ -167,6 +167,22 @@ function getSelectLabel(selectEl, fallback){
   return opt ? opt.textContent.trim() : fallback;
 }
 
+function setChartEmptyState(container, canvas, emptyId, isEmpty, message) {
+  if (!container || !canvas) return;
+
+  let emptyEl = document.getElementById(emptyId);
+  if (!emptyEl) {
+    emptyEl = document.createElement("div");
+    emptyEl.id = emptyId;
+    emptyEl.className = "chart-empty";
+    container.insertBefore(emptyEl, canvas);
+  }
+
+  emptyEl.textContent = message || "Aucune donnée à afficher";
+  emptyEl.style.display = isEmpty ? "block" : "none";
+  canvas.style.display = isEmpty ? "none" : "block";
+}
+
 const chartValueLabelPlugin = {
   id: "chartValueLabel",
   afterDatasetDraw(chart, args, pluginOptions){
@@ -311,6 +327,12 @@ function updatePieChart(ops) {
     const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
     const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
     contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
+  if (!container || !canvas) return;
+
+  if (contextInfo) {
+    const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
+    const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
+    contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
   }
 
   const palette = [
@@ -391,6 +413,108 @@ function updateBubbleChart(ops) {
     if (pieChartInstance) pieChartInstance.destroy();
     return;
   }
+
+  const palette = [
+    "#2ecc71",
+    "#3498db",
+    "#9b59b6",
+    "#e67e22",
+    "#e74c3c",
+    "#16a085",
+    "#f1c40f",
+    "#34495e"
+  ];
+
+  if (pieChartInstance) {
+    pieChartInstance.destroy();
+  }
+
+  pieChartInstance = new Chart(ctx, {
+    type: "pie",
+    plugins: [chartValueLabelPlugin],
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: labels.map((_, idx) => palette[idx % palette.length])
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom"
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.label || "";
+              const value = context.parsed || 0;
+              return `${label}: ${value}`;
+            }
+          }
+        },
+        chartValueLabel: {
+          pieColor: "#0f172a"
+        }
+      }
+    }
+  });
+}
+
+function updateBubbleChart(ops) {
+  const container = document.getElementById("bubbleContainer");
+  const canvas = document.getElementById("bubbleChart");
+  const contextInfo = document.getElementById("bubbleContext");
+  if (!container || !canvas) return;
+
+  if (contextInfo) {
+    const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
+    const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
+    contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
+  }
+
+  const ctx = canvas.getContext("2d");
+
+  const visibleMap = {};
+  domainCheckboxes.forEach(cb => {
+    visibleMap[cb.value] = cb.checked;
+  });
+
+  const labels = [];
+  const data = [];
+
+  DOMAINS.forEach(domain => {
+    if (visibleMap[domain.key] === false) return;
+
+    let count = 0;
+    ops.forEach(op => {
+      const d = op.domains[domain.key];
+      if (!d) return;
+      if (d.status === "valid") count++;
+    });
+
+    labels.push(domain.label);
+    data.push(count);
+  });
+
+  if (!labels.length) {
+    if (pieChartInstance) pieChartInstance.destroy();
+    setChartEmptyState(container, canvas, "pieChartEmpty", true, "Aucun domaine sélectionné");
+    return;
+  }
+
+  const total = data.reduce((sum, val) => sum + val, 0);
+  if (total === 0) {
+    if (pieChartInstance) pieChartInstance.destroy();
+    const ctx2d = canvas.getContext("2d");
+    if (ctx2d) ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    setChartEmptyState(container, canvas, "pieChartEmpty", true, "Aucune donnée valide à afficher");
+    return;
+  }
+
+  setChartEmptyState(container, canvas, "pieChartEmpty", false);
 
   const palette = [
     "#2ecc71",
