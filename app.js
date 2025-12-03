@@ -313,6 +313,56 @@ function updatePieChart(ops) {
     contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
   }
 
+  const palette = [
+    "#2ecc71",
+    "#3498db",
+    "#9b59b6",
+    "#e67e22",
+    "#e74c3c",
+    "#16a085",
+    "#f1c40f",
+    "#34495e"
+  ];
+
+  if (pieChartInstance) {
+    pieChartInstance.destroy();
+  }
+
+  pieChartInstance = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: labels.map((_, idx) => palette[idx % palette.length])
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom"
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.label || "";
+              const value = context.parsed || 0;
+              return `${label}: ${value}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateBubbleChart(ops) {
+  const container = document.getElementById("bubbleContainer");
+  const canvas = document.getElementById("bubbleChart");
+  if (!container || !canvas) return;
+
   const ctx = canvas.getContext("2d");
 
   const visibleMap = {};

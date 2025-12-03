@@ -719,6 +719,13 @@ table {
     display:none;
   }
 
+  body.layout-bubbles #bubbleContainer {
+    display:block;
+  }
+  body.layout-bubbles #pieContainer {
+    display:none;
+  }
+
 
   body.memoire-mode .table-wrapper {
     border: 2px solid #0078d4;
