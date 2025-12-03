@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Certifications</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="layout-bar">
+  <button id="layoutListBtn">Liste</button>
+  <button id="layoutCardsBtn">Cartes</button>
+  <button id="layoutBubblesBtn">Bulles</button>
+  <button id="layoutPieBtn">Camembert</button>
+</div>
+
+<input type="file" id="excelFile" style="display:none">
+<input type="file" id="excelLocation" style="display:none">
+
+<div id="tableContainer"><table id="dataTable"><tbody></tbody></table></div>
+<div id="cardsContainer"></div>
+<div id="bubbleContainer"><canvas id="bubbleChart"></canvas></div>
+<div id="pieContainer"><canvas id="pieChart"></canvas></div>
+
+<script src="app.js"></script>
+</body>
+</html>
