@@ -161,6 +161,51 @@ const toggleCert = document.getElementById("toggleCert");
 
 const domainCheckboxes = document.querySelectorAll('.domain-toggle input[type="checkbox"]');
 
+function getSelectLabel(selectEl, fallback){
+  if (!selectEl) return fallback;
+  const opt = selectEl.options[selectEl.selectedIndex];
+  return opt ? opt.textContent.trim() : fallback;
+}
+
+const chartValueLabelPlugin = {
+  id: "chartValueLabel",
+  afterDatasetDraw(chart, args, pluginOptions){
+    const {ctx} = chart;
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = (pluginOptions && pluginOptions.font) || "12px 'Inter', 'Segoe UI', Arial, sans-serif";
+
+    if (chart.config.type === "pie") {
+      const dataset = chart.data.datasets[0];
+      const meta = chart.getDatasetMeta(0);
+      meta.data.forEach((arc, idx) => {
+        const value = dataset.data[idx];
+        if (!value) return;
+        const {x, y} = arc.tooltipPosition();
+        ctx.fillStyle = (pluginOptions && pluginOptions.pieColor) || "#0f172a";
+        ctx.fillText(value, x, y);
+      });
+    }
+
+    if (chart.config.type === "bubble") {
+      chart.data.datasets.forEach((dataset, datasetIndex) => {
+        const meta = chart.getDatasetMeta(datasetIndex);
+        meta.data.forEach((pt, i) => {
+          const raw = dataset.data[i] || {};
+          const value = raw.count ?? dataset._count ?? raw.r;
+          if (!value && value !== 0) return;
+          const {x, y} = pt.tooltipPosition();
+          ctx.fillStyle = (pluginOptions && pluginOptions.bubbleColor) || "#ffffff";
+          ctx.fillText(value, x, y);
+        });
+      });
+    }
+
+    ctx.restore();
+  }
+};
+
 function updateDomainVisibility() {
   const table = document.getElementById("dataTable");
   if (!table) return;
@@ -256,25 +301,114 @@ function renderMemoirePanels(ops) {
   container.innerHTML = htmlPanels;
 }
 
-function renderBubbleChart(ops) {
-  const container = document.getElementById("bubbleContainer");
-  const canvas = document.getElementById("bubbleChart");
+function updatePieChart(ops) {
+  const container = document.getElementById("pieContainer");
+  const canvas = document.getElementById("pieChart");
+  const contextInfo = document.getElementById("pieContext");
   if (!container || !canvas) return;
 
-  const isMemoire = (typeof VIEW_MODE !== "undefined" && VIEW_MODE === "memoire");
-  if (!isMemoire) {
-    container.style.display = "none";
-    return;
+  if (contextInfo) {
+    const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
+    const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
+    contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
   }
 
   const ctx = canvas.getContext("2d");
 
   const visibleMap = {};
-  if (typeof domainCheckboxes !== "undefined") {
-    domainCheckboxes.forEach(cb => {
-      visibleMap[cb.value] = cb.checked;
+  domainCheckboxes.forEach(cb => {
+    visibleMap[cb.value] = cb.checked;
+  });
+
+  const labels = [];
+  const data = [];
+
+  DOMAINS.forEach(domain => {
+    if (visibleMap[domain.key] === false) return;
+
+    let count = 0;
+    ops.forEach(op => {
+      const d = op.domains[domain.key];
+      if (!d) return;
+      if (d.status === "valid") count++;
     });
+
+    labels.push(domain.label);
+    data.push(count);
+  });
+
+  if (!labels.length) {
+    if (pieChartInstance) pieChartInstance.destroy();
+    return;
   }
+
+  const palette = [
+    "#2ecc71",
+    "#3498db",
+    "#9b59b6",
+    "#e67e22",
+    "#e74c3c",
+    "#16a085",
+    "#f1c40f",
+    "#34495e"
+  ];
+
+  if (pieChartInstance) {
+    pieChartInstance.destroy();
+  }
+
+  pieChartInstance = new Chart(ctx, {
+    type: "pie",
+    plugins: [chartValueLabelPlugin],
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: labels.map((_, idx) => palette[idx % palette.length])
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom"
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.label || "";
+              const value = context.parsed || 0;
+              return `${label}: ${value}`;
+            }
+          }
+        },
+        chartValueLabel: {
+          pieColor: "#0f172a"
+        }
+      }
+    }
+  });
+}
+
+function updateBubbleChart(ops) {
+  const container = document.getElementById("bubbleContainer");
+  const canvas = document.getElementById("bubbleChart");
+  const contextInfo = document.getElementById("bubbleContext");
+  if (!container || !canvas) return;
+
+  if (contextInfo) {
+    const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
+    const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
+    contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
+  }
+
+  const ctx = canvas.getContext("2d");
+
+  const visibleMap = {};
+  domainCheckboxes.forEach(cb => {
+    visibleMap[cb.value] = cb.checked;
+  });
 
   const counts = [];
   DOMAINS.forEach((domain, idx) => {
@@ -291,30 +425,39 @@ function renderBubbleChart(ops) {
     counts.push({ domain, count });
   });
 
+  if (!counts.length) {
+    if (bubbleChartInstance) bubbleChartInstance.destroy();
+    return;
+  }
+
   const maxCount = counts.reduce((m, c) => Math.max(m, c.count), 0) || 1;
+
+  const palette = [
+    "#2ecc71",
+    "#3498db",
+    "#9b59b6",
+    "#e67e22",
+    "#e74c3c",
+    "#16a085",
+    "#f1c40f",
+    "#34495e"
+  ];
+
+  const spacing = Math.min(12, 80 / Math.max(counts.length - 1, 1));
+  const startX = 10;
 
   const datasets = counts.map((item, i) => {
     const radius = 10 + (item.count / maxCount) * 25; // rayon entre 10 et 35
-    const x = (i + 1) * (100 / (counts.length + 1));
-    const y = 50;
+    const x = startX + i * spacing;
+    const y = 50 + (i % 2 === 0 ? -6 : 6);
 
-    // Couleurs différentes par domaine
-    const palette = [
-      "#2ecc71", // green
-      "#3498db", // blue
-      "#9b59b6", // purple
-      "#e67e22", // orange
-      "#e74c3c", // red
-      "#16a085", // teal
-      "#f1c40f", // yellow
-      "#34495e"  // dark
-    ];
     const color = palette[i % palette.length];
 
     return {
       label: item.domain.label + " (" + item.count + ")",
-      data: [{ x, y, r: radius }],
-      backgroundColor: color
+      data: [{ x, y, r: radius, count: item.count }],
+      backgroundColor: color,
+      _count: item.count
     };
   });
 
@@ -324,6 +467,7 @@ function renderBubbleChart(ops) {
 
   bubbleChartInstance = new Chart(ctx, {
     type: "bubble",
+    plugins: [chartValueLabelPlugin],
     data: {
       datasets
     },
@@ -342,6 +486,9 @@ function renderBubbleChart(ops) {
           callbacks: {
             label: (context) => context.dataset.label
           }
+        },
+        chartValueLabel: {
+          bubbleColor: "#ffffff"
         }
       },
       scales: {
@@ -368,17 +515,23 @@ viewModeRadios.forEach(radio => {
       document.body.classList.add("layout-list");
       document.body.classList.remove("layout-cards");
       document.body.classList.remove("layout-bubbles");
+      document.body.classList.remove("layout-pie");
       const listBtn = document.getElementById("layoutListBtn");
       const cardsBtn = document.getElementById("layoutCardsBtn");
+      const pieBtn = document.getElementById("layoutPieBtn");
+      const bubbleBtn = document.getElementById("layoutBubblesBtn");
       if (listBtn && cardsBtn) {
         listBtn.classList.add("active");
         cardsBtn.classList.remove("active");
+        if (pieBtn) pieBtn.classList.remove("active");
+        if (bubbleBtn) bubbleBtn.classList.remove("active");
       }
     } else {
       document.body.classList.remove("memoire-mode");
       document.body.classList.remove("layout-list");
       document.body.classList.remove("layout-cards");
       document.body.classList.remove("layout-bubbles");
+      document.body.classList.remove("layout-pie");
     }
     applyFilters();
   });
@@ -387,11 +540,13 @@ viewModeRadios.forEach(radio => {
 
 let chartInstance = null;
 let bubbleChartInstance = null;
+let pieChartInstance = null;
 let VIEW_MODE = "advanced";
 let ALL_OPERATORS = [];      // { name, row, domains:{ key:{status,org,num,deb,fin} }, pole, section, manager, email }
 let currentStatsGlobal = null; // stats par domaine pour tout le fichier
 let LOCATION_MAP = {};       // key -> { email, section, pole, manager }
 let HAS_LOCATION = false;
+let LAST_FILTERED_OPERATORS = [];
 
 document.getElementById("openFileBtn").addEventListener("click", () => {
   fileInput.click();
@@ -1022,11 +1177,19 @@ function applyFilters(){
   ).length;
   document.getElementById("kpiFilteredFull").textContent = fullFiltered;
 
+  LAST_FILTERED_OPERATORS = ops;
+
   renderTable(ops);
   updateHeaderBadges(ops);
   updateDomainVisibility();
   renderMemoirePanels(ops);
-  renderBubbleChart(ops);
+
+  if (document.body.classList.contains("layout-pie")) {
+    updatePieChart(ops);
+  }
+  if (document.body.classList.contains("layout-bubbles")) {
+    updateBubbleChart(ops);
+  }
 }
 
 /* ==========
@@ -1313,32 +1476,52 @@ document.querySelectorAll("#dataTable thead th.geo-col")
 const layoutListBtn = document.getElementById("layoutListBtn");
 const layoutCardsBtn = document.getElementById("layoutCardsBtn");
 const layoutBubblesBtn = document.getElementById("layoutBubblesBtn");
+const layoutPieBtn = document.getElementById("layoutPieBtn");
 
-if (layoutListBtn && layoutCardsBtn && layoutBubblesBtn) {
+if (layoutListBtn && layoutCardsBtn && layoutBubblesBtn && layoutPieBtn) {
   layoutListBtn.addEventListener("click", () => {
     document.body.classList.add("layout-list");
     document.body.classList.remove("layout-cards");
     document.body.classList.remove("layout-bubbles");
+    document.body.classList.remove("layout-pie");
     layoutListBtn.classList.add("active");
     layoutCardsBtn.classList.remove("active");
     layoutBubblesBtn.classList.remove("active");
+    layoutPieBtn.classList.remove("active");
   });
 
   layoutCardsBtn.addEventListener("click", () => {
     document.body.classList.remove("layout-list");
     document.body.classList.add("layout-cards");
     document.body.classList.remove("layout-bubbles");
+    document.body.classList.remove("layout-pie");
     layoutCardsBtn.classList.add("active");
     layoutListBtn.classList.remove("active");
     layoutBubblesBtn.classList.remove("active");
+    layoutPieBtn.classList.remove("active");
   });
 
   layoutBubblesBtn.addEventListener("click", () => {
     document.body.classList.remove("layout-list");
     document.body.classList.remove("layout-cards");
     document.body.classList.add("layout-bubbles");
+    document.body.classList.remove("layout-pie");
     layoutBubblesBtn.classList.add("active");
     layoutListBtn.classList.remove("active");
     layoutCardsBtn.classList.remove("active");
+    layoutPieBtn.classList.remove("active");
+    updateBubbleChart(LAST_FILTERED_OPERATORS);
+  });
+
+  layoutPieBtn.addEventListener("click", () => {
+    document.body.classList.remove("layout-list");
+    document.body.classList.remove("layout-cards");
+    document.body.classList.remove("layout-bubbles");
+    document.body.classList.add("layout-pie");
+    layoutPieBtn.classList.add("active");
+    layoutListBtn.classList.remove("active");
+    layoutCardsBtn.classList.remove("active");
+    layoutBubblesBtn.classList.remove("active");
+    updatePieChart(LAST_FILTERED_OPERATORS);
   });
 }
