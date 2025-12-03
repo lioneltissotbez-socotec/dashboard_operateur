@@ -716,7 +716,31 @@ table {
     display:none;
   }
   body.layout-pie #pieContainer {
+    display:none;
+  }
+  body.layout-pie #memoirePanels,
+  body.layout-bubbles #memoirePanels {
+    display:none;
+  }
+  body.layout-pie #bubbleContainer {
+    display:none;
+  }
+  body.layout-pie #pieContainer {
     display:block;
+  }
+
+  body.layout-bubbles #bubbleContainer {
+    display:block;
+  }
+  body.layout-bubbles #pieContainer {
+    display:none;
+  }
+
+  body.layout-bubbles #bubbleContainer {
+    display:block;
+  }
+  body.layout-bubbles #pieContainer {
+    display:none;
   }
 
   body.layout-bubbles #bubbleContainer {

@@ -327,6 +327,152 @@ function updatePieChart(ops) {
     const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
     const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
     contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
+  if (!container || !canvas) return;
+
+  if (contextInfo) {
+    const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
+    const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
+    contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
+  }
+
+  const palette = [
+    "#2ecc71",
+    "#3498db",
+    "#9b59b6",
+    "#e67e22",
+    "#e74c3c",
+    "#16a085",
+    "#f1c40f",
+    "#34495e"
+  ];
+
+  if (pieChartInstance) {
+    pieChartInstance.destroy();
+  }
+
+  pieChartInstance = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: labels.map((_, idx) => palette[idx % palette.length])
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom"
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.label || "";
+              const value = context.parsed || 0;
+              return `${label}: ${value}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateBubbleChart(ops) {
+  const container = document.getElementById("bubbleContainer");
+  const canvas = document.getElementById("bubbleChart");
+  if (!container || !canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  const visibleMap = {};
+  domainCheckboxes.forEach(cb => {
+    visibleMap[cb.value] = cb.checked;
+  });
+
+  const labels = [];
+  const data = [];
+
+  DOMAINS.forEach(domain => {
+    if (visibleMap[domain.key] === false) return;
+
+    let count = 0;
+    ops.forEach(op => {
+      const d = op.domains[domain.key];
+      if (!d) return;
+      if (d.status === "valid") count++;
+    });
+
+    labels.push(domain.label);
+    data.push(count);
+  });
+
+  if (!labels.length) {
+    if (pieChartInstance) pieChartInstance.destroy();
+    return;
+  }
+
+  const palette = [
+    "#2ecc71",
+    "#3498db",
+    "#9b59b6",
+    "#e67e22",
+    "#e74c3c",
+    "#16a085",
+    "#f1c40f",
+    "#34495e"
+  ];
+
+  if (pieChartInstance) {
+    pieChartInstance.destroy();
+  }
+
+  pieChartInstance = new Chart(ctx, {
+    type: "pie",
+    plugins: [chartValueLabelPlugin],
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: labels.map((_, idx) => palette[idx % palette.length])
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom"
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.label || "";
+              const value = context.parsed || 0;
+              return `${label}: ${value}`;
+            }
+          }
+        },
+        chartValueLabel: {
+          pieColor: "#0f172a"
+        }
+      }
+    }
+  });
+}
+
+function updateBubbleChart(ops) {
+  const container = document.getElementById("bubbleContainer");
+  const canvas = document.getElementById("bubbleChart");
+  const contextInfo = document.getElementById("bubbleContext");
+  if (!container || !canvas) return;
+
+  if (contextInfo) {
+    const poleLabel = getSelectLabel(filterPoleSelect, "Tous");
+    const sectionLabel = getSelectLabel(filterSectionSelect, "Toutes");
+    contextInfo.textContent = `Pôle : ${poleLabel} • Section : ${sectionLabel}`;
   }
 
   const ctx = canvas.getContext("2d");
