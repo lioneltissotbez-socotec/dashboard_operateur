@@ -36,7 +36,14 @@ input[type="file"] { margin:10px 0 15px; }
 }
 
 #excelFile, #excelLocation {
-  display: none; /* on cache l'input natif */
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .primary-btn, .secondary-btn {
