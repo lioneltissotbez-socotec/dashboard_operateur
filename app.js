@@ -377,6 +377,7 @@ function updatePieChart(ops) {
 
   pieChartInstance = new Chart(ctx, {
     type: "pie",
+    plugins: [chartValueLabelPlugin],
     data: {
       labels,
       datasets: [{
@@ -398,7 +399,10 @@ function updatePieChart(ops) {
               const value = context.parsed || 0;
               return `${label}: ${value}`;
             }
-          }
+          },
+        },
+        chartValueLabel: {
+          pieColor: "#0f172a"
         }
       }
     }
