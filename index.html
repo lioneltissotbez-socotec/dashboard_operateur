@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <title>Application indisponible en ligne • Accès local requis</title>
+
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --bg2:#060816;
+      --card: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --muted2: rgba(255,255,255,.58);
+      --accent: #7dd3fc;
+      --accent2:#a78bfa;
+      --ok:#34d399;
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+      --radius: 22px;
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(125,211,252,.16), transparent 60%),
+        radial-gradient(900px 700px at 85% 25%, rgba(167,139,250,.16), transparent 55%),
+        radial-gradient(1000px 700px at 45% 100%, rgba(52,211,153,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 28px 16px;
+    }
+
+    .wrap{
+      width: min(980px, 100%);
+    }
+
+    .top{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom: 14px;
+      opacity: .95;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      letter-spacing:.2px;
+    }
+    .logo{
+      width:38px;height:38px;
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(125,211,252,.95), rgba(167,139,250,.95));
+      box-shadow: 0 12px 34px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:-20px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%);
+      transform: rotate(12deg);
+    }
+    .brand .name{
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .pill{
+      font-size: 12px;
+      color: rgba(255,255,255,.75);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      padding: 8px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      white-space: nowrap;
+    }
+    .pill .dot{
+      width:8px;height:8px;border-radius:999px;background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(52,211,153,.12);
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .hero{
+      padding: 26px 22px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    }
+
+    .titleRow{
+      display:flex;
+      align-items:flex-start;
+      gap:14px;
+      flex-wrap: wrap;
+    }
+
+    .icon{
+      width:48px;height:48px;
+      border-radius: 16px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      flex: 0 0 auto;
+    }
+    .icon svg{ opacity:.95; }
+
+    h1{
+      margin:0;
+      font-size: clamp(22px, 3.2vw, 32px);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .subtitle{
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.55;
+      max-width: 80ch;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 14px;
+      padding: 18px 22px 22px;
+    }
+
+    @media (max-width: 860px){
+      .grid{ grid-template-columns: 1fr; }
+      .pill{ display:none; }
+    }
+
+    .panel{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(8,12,24,.32);
+      border-radius: 18px;
+      padding: 16px 16px;
+    }
+    .panel h2{
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: rgba(255,255,255,.86);
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+    .panel p{
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .list{
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .list li{ margin: 8px 0; }
+    .list strong{ color: rgba(255,255,255,.9); }
+
+    .actions{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      padding: 11px 12px;
+      border-radius: 14px;
+      font-weight: 650;
+      font-size: 14px;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    .btn:hover{
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.24);
+      transform: translateY(-1px);
+    }
+    .btn.primary{
+      border-color: rgba(125,211,252,.35);
+      background: linear-gradient(135deg, rgba(125,211,252,.20), rgba(167,139,250,.20));
+    }
+    .btn svg{ opacity:.95; }
+
+    .kv{
+      display:grid;
+      grid-template-columns: 130px 1fr;
+      gap: 10px 12px;
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255,255,255,.14);
+      font-size: 13.5px;
+    }
+    .kv .k{ color: var(--muted2); }
+    .kv .v{ color: rgba(255,255,255,.88); word-break: break-word; }
+
+    .foot{
+      padding: 14px 22px 18px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap: wrap;
+      color: var(--muted2);
+      font-size: 12.5px;
+    }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+
+<body>
+  <main class="wrap" role="main" aria-label="Application indisponible en ligne">
+    <div class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="name">Application interne • Accès restreint</div>
+      </div>
+      <div class="pill" title="Statut sécurité">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Mode sécurisé : exécution locale uniquement</span>
+      </div>
+    </div>
+
+    <section class="card">
+      <header class="hero">
+        <div class="titleRow">
+          <div class="icon" aria-hidden="true">
+            <!-- Shield icon (inline SVG, no external deps) -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2l7 4v6c0 5-3 9-7 10-4-1-7-5-7-10V6l7-4Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M9.2 12.2l1.9 1.9 3.9-4.4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1>Application indisponible en ligne</h1>
+            <p class="subtitle">
+              Pour des raisons de <strong>sécurité informatique</strong> et de <strong>protection des données</strong>,
+              cette application n’est plus accessible via le web.
+              Une version <strong>exécutable en local</strong> est disponible sur demande.
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="panel">
+          <h2>Pourquoi ce changement ?</h2>
+          <p>
+            Cette décision vise à réduire tout risque d’exposition et à garantir une utilisation conforme aux exigences
+            de sécurité (exécution locale, absence de transfert de données).
+          </p>
+          <ul class="list">
+            <li><strong>Aucune donnée</strong> n’est traitée ou stockée en ligne.</li>
+            <li>L’outil est fourni en version <strong>locale</strong> (poste utilisateur).</li>
+            <li>Les fichiers restent sur l’ordinateur : <strong>pas d’upload</strong>, pas d’API, pas de base distante.</li>
+            <li>Le canal web ne servait qu’à distribuer le moteur — désormais retiré par précaution.</li>
+          </ul>
+        </section>
+
+        <aside class="panel">
+          <h2>Obtenir la version locale</h2>
+          <p>
+            Contacte directement <strong>Lionel TISSOT-BEZ</strong> pour recevoir l’application exécutable et la procédure d’installation.
+          </p>
+
+          <div class="actions">
+            <!-- Remplace l'email ci-dessous si tu veux -->
+            <a class="btn primary" href="mailto:lionel.tissotbez@socotec.com?subject=Demande%20application%20locale&body=Bonjour%20Lionel%2C%0A%0AJe%20souhaite%20obtenir%20la%20version%20locale%20de%20l%E2%80%99application%20et%20la%20proc%C3%A9dure%20d%E2%80%99installation.%0A%0AMerci%2C">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 6h16v12H4V6Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="m4 7 8 6 8-6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Contacter par email
+            </a>
+
+            <button class="btn" type="button" id="copyContact">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 9h10v10H9V9Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Copier le contact
+            </button>
+          </div>
+
+          <div class="kv" aria-label="Informations de contact">
+            <div class="k">Contact</div><div class="v">Lionel TISSOT-BEZ</div>
+            <div class="k">Canal</div><div class="v">Email (recommandé)</div>
+            <div class="k">Objet</div><div class="v mono">Demande application locale</div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="foot">
+        <div>Message d’information — sécurité & confidentialité</div>
+        <div class="mono" id="stamp">—</div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // Horodatage simple (local navigateur) + copy contact
+    (function () {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const stamp = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      document.getElementById("stamp").textContent = "Dernière mise à jour : " + stamp;
+
+      const contactText = "Lionel TISSOT-BEZ — Demande application locale — lionel.tissotbez@socotec.com";
+      const btn = document.getElementById("copyContact");
+
+      btn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(contactText);
+          btn.textContent = "Contact copié ✓";
+          btn.classList.add("primary");
+          setTimeout(() => {
+            btn.textContent = "Copier le contact";
+            btn.classList.remove("primary");
+          }, 1800);
+        } catch (e) {
+          alert("Copie impossible sur ce navigateur. Contact : " + contactText);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
